@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.tony.transaction.tcc.mysql.mapper.AtomMapper">
+  <resultMap id="BaseResultMap" type="org.tony.transaction.tcc.mysql.po.Atom">
+    <id column="atom_id" jdbcType="VARCHAR" property="atomId" />
+    <result column="atom_code" jdbcType="VARCHAR" property="atomCode" />
+    <result column="composite_id" jdbcType="VARCHAR" property="compositeId" />
+    <result column="last_status" jdbcType="VARCHAR" property="lastStatus" />
+    <result column="atom_current_status" jdbcType="VARCHAR" property="atomCurrentStatus" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="atom_current_time" jdbcType="TIMESTAMP" property="atomCurrentTime" />
+    <result column="ioc_id" jdbcType="VARCHAR" property="iocId" />
+    <result column="current_retry_cnt" jdbcType="INTEGER" property="currentRetryCnt" />
+    <result column="lock_time" jdbcType="TIMESTAMP" property="lockTime" />
+    <result column="lock_status" jdbcType="INTEGER" property="lockStatus" />
+    <result column="atom_sort" jdbcType="INTEGER" property="atomSort" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="org.tony.transaction.tcc.mysql.po.Atom">
+    <result column="args_content" jdbcType="LONGVARBINARY" property="argsContent" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    atom_id, atom_code, composite_id, last_status, atom_current_status, create_date, 
+    atom_current_time, ioc_id, current_retry_cnt, lock_time, lock_status, atom_sort
+  </sql>
+  <sql id="Blob_Column_List">
+    args_content
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="org.tony.transaction.tcc.mysql.po.AtomExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from atom
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="org.tony.transaction.tcc.mysql.po.AtomExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from atom
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null">
+      <if test="offset != null">
+        limit ${offset}, ${limit}
+      </if>
+      <if test="offset == null">
+        limit ${limit}
+      </if>
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from atom
+    where atom_id = #{atomId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from atom
+    where atom_id = #{atomId,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="org.tony.transaction.tcc.mysql.po.AtomExample">
+    delete from atom
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="org.tony.transaction.tcc.mysql.po.Atom">
+    insert into atom (atom_id, atom_code, composite_id, 
+      last_status, atom_current_status, create_date, 
+      atom_current_time, ioc_id, current_retry_cnt, 
+      lock_time, lock_status, atom_sort, 
+      args_content)
+    values (#{atomId,jdbcType=VARCHAR}, #{atomCode,jdbcType=VARCHAR}, #{compositeId,jdbcType=VARCHAR}, 
+      #{lastStatus,jdbcType=VARCHAR}, #{atomCurrentStatus,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{atomCurrentTime,jdbcType=TIMESTAMP}, #{iocId,jdbcType=VARCHAR}, #{currentRetryCnt,jdbcType=INTEGER}, 
+      #{lockTime,jdbcType=TIMESTAMP}, #{lockStatus,jdbcType=INTEGER}, #{atomSort,jdbcType=INTEGER}, 
+      #{argsContent,jdbcType=LONGVARBINARY})
+  </insert>
+  <insert id="insertSelective" parameterType="org.tony.transaction.tcc.mysql.po.Atom">
+    insert into atom
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="atomId != null">
+        atom_id,
+      </if>
+      <if test="atomCode != null">
+        atom_code,
+      </if>
+      <if test="compositeId != null">
+        composite_id,
+      </if>
+      <if test="lastStatus != null">
+        last_status,
+      </if>
+      <if test="atomCurrentStatus != null">
+        atom_current_status,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="atomCurrentTime != null">
+        atom_current_time,
+      </if>
+      <if test="iocId != null">
+        ioc_id,
+      </if>
+      <if test="currentRetryCnt != null">
+        current_retry_cnt,
+      </if>
+      <if test="lockTime != null">
+        lock_time,
+      </if>
+      <if test="lockStatus != null">
+        lock_status,
+      </if>
+      <if test="atomSort != null">
+        atom_sort,
+      </if>
+      <if test="argsContent != null">
+        args_content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="atomId != null">
+        #{atomId,jdbcType=VARCHAR},
+      </if>
+      <if test="atomCode != null">
+        #{atomCode,jdbcType=VARCHAR},
+      </if>
+      <if test="compositeId != null">
+        #{compositeId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastStatus != null">
+        #{lastStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="atomCurrentStatus != null">
+        #{atomCurrentStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="atomCurrentTime != null">
+        #{atomCurrentTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="iocId != null">
+        #{iocId,jdbcType=VARCHAR},
+      </if>
+      <if test="currentRetryCnt != null">
+        #{currentRetryCnt,jdbcType=INTEGER},
+      </if>
+      <if test="lockTime != null">
+        #{lockTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lockStatus != null">
+        #{lockStatus,jdbcType=INTEGER},
+      </if>
+      <if test="atomSort != null">
+        #{atomSort,jdbcType=INTEGER},
+      </if>
+      <if test="argsContent != null">
+        #{argsContent,jdbcType=LONGVARBINARY},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="org.tony.transaction.tcc.mysql.po.AtomExample" resultType="java.lang.Long">
+    select count(*) from atom
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update atom
+    <set>
+      <if test="record.atomId != null">
+        atom_id = #{record.atomId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.atomCode != null">
+        atom_code = #{record.atomCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.compositeId != null">
+        composite_id = #{record.compositeId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.lastStatus != null">
+        last_status = #{record.lastStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.atomCurrentStatus != null">
+        atom_current_status = #{record.atomCurrentStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createDate != null">
+        create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.atomCurrentTime != null">
+        atom_current_time = #{record.atomCurrentTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.iocId != null">
+        ioc_id = #{record.iocId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.currentRetryCnt != null">
+        current_retry_cnt = #{record.currentRetryCnt,jdbcType=INTEGER},
+      </if>
+      <if test="record.lockTime != null">
+        lock_time = #{record.lockTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.lockStatus != null">
+        lock_status = #{record.lockStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.atomSort != null">
+        atom_sort = #{record.atomSort,jdbcType=INTEGER},
+      </if>
+      <if test="record.argsContent != null">
+        args_content = #{record.argsContent,jdbcType=LONGVARBINARY},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update atom
+    set atom_id = #{record.atomId,jdbcType=VARCHAR},
+      atom_code = #{record.atomCode,jdbcType=VARCHAR},
+      composite_id = #{record.compositeId,jdbcType=VARCHAR},
+      last_status = #{record.lastStatus,jdbcType=VARCHAR},
+      atom_current_status = #{record.atomCurrentStatus,jdbcType=VARCHAR},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      atom_current_time = #{record.atomCurrentTime,jdbcType=TIMESTAMP},
+      ioc_id = #{record.iocId,jdbcType=VARCHAR},
+      current_retry_cnt = #{record.currentRetryCnt,jdbcType=INTEGER},
+      lock_time = #{record.lockTime,jdbcType=TIMESTAMP},
+      lock_status = #{record.lockStatus,jdbcType=INTEGER},
+      atom_sort = #{record.atomSort,jdbcType=INTEGER},
+      args_content = #{record.argsContent,jdbcType=LONGVARBINARY}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update atom
+    set atom_id = #{record.atomId,jdbcType=VARCHAR},
+      atom_code = #{record.atomCode,jdbcType=VARCHAR},
+      composite_id = #{record.compositeId,jdbcType=VARCHAR},
+      last_status = #{record.lastStatus,jdbcType=VARCHAR},
+      atom_current_status = #{record.atomCurrentStatus,jdbcType=VARCHAR},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      atom_current_time = #{record.atomCurrentTime,jdbcType=TIMESTAMP},
+      ioc_id = #{record.iocId,jdbcType=VARCHAR},
+      current_retry_cnt = #{record.currentRetryCnt,jdbcType=INTEGER},
+      lock_time = #{record.lockTime,jdbcType=TIMESTAMP},
+      lock_status = #{record.lockStatus,jdbcType=INTEGER},
+      atom_sort = #{record.atomSort,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="org.tony.transaction.tcc.mysql.po.Atom">
+    update atom
+    <set>
+      <if test="atomCode != null">
+        atom_code = #{atomCode,jdbcType=VARCHAR},
+      </if>
+      <if test="compositeId != null">
+        composite_id = #{compositeId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastStatus != null">
+        last_status = #{lastStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="atomCurrentStatus != null">
+        atom_current_status = #{atomCurrentStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="atomCurrentTime != null">
+        atom_current_time = #{atomCurrentTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="iocId != null">
+        ioc_id = #{iocId,jdbcType=VARCHAR},
+      </if>
+      <if test="currentRetryCnt != null">
+        current_retry_cnt = #{currentRetryCnt,jdbcType=INTEGER},
+      </if>
+      <if test="lockTime != null">
+        lock_time = #{lockTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lockStatus != null">
+        lock_status = #{lockStatus,jdbcType=INTEGER},
+      </if>
+      <if test="atomSort != null">
+        atom_sort = #{atomSort,jdbcType=INTEGER},
+      </if>
+      <if test="argsContent != null">
+        args_content = #{argsContent,jdbcType=LONGVARBINARY},
+      </if>
+    </set>
+    where atom_id = #{atomId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="org.tony.transaction.tcc.mysql.po.Atom">
+    update atom
+    set atom_code = #{atomCode,jdbcType=VARCHAR},
+      composite_id = #{compositeId,jdbcType=VARCHAR},
+      last_status = #{lastStatus,jdbcType=VARCHAR},
+      atom_current_status = #{atomCurrentStatus,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      atom_current_time = #{atomCurrentTime,jdbcType=TIMESTAMP},
+      ioc_id = #{iocId,jdbcType=VARCHAR},
+      current_retry_cnt = #{currentRetryCnt,jdbcType=INTEGER},
+      lock_time = #{lockTime,jdbcType=TIMESTAMP},
+      lock_status = #{lockStatus,jdbcType=INTEGER},
+      atom_sort = #{atomSort,jdbcType=INTEGER},
+      args_content = #{argsContent,jdbcType=LONGVARBINARY}
+    where atom_id = #{atomId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.tony.transaction.tcc.mysql.po.Atom">
+    update atom
+    set atom_code = #{atomCode,jdbcType=VARCHAR},
+      composite_id = #{compositeId,jdbcType=VARCHAR},
+      last_status = #{lastStatus,jdbcType=VARCHAR},
+      atom_current_status = #{atomCurrentStatus,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      atom_current_time = #{atomCurrentTime,jdbcType=TIMESTAMP},
+      ioc_id = #{iocId,jdbcType=VARCHAR},
+      current_retry_cnt = #{currentRetryCnt,jdbcType=INTEGER},
+      lock_time = #{lockTime,jdbcType=TIMESTAMP},
+      lock_status = #{lockStatus,jdbcType=INTEGER},
+      atom_sort = #{atomSort,jdbcType=INTEGER}
+    where atom_id = #{atomId,jdbcType=VARCHAR}
+  </update>
+</mapper>

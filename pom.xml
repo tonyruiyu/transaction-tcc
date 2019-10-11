@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.tony.transaction</groupId>
+	<artifactId>transaction-tcc</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-framework-bom</artifactId>
+				<version>${spring.bom.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.alibaba</groupId>
+				<artifactId>fastjson</artifactId>
+				<version>${fastjson_version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<properties>
+		<spring.bom.version>4.0.6.RELEASE</spring.bom.version>
+		<fastjson_version>1.1.39</fastjson_version>
+	</properties>
+
+
+	<modules>
+		<module>transaction-tcc-core</module>
+	 <module>transaction-tcc-spring</module>
+	 <module>transaction-tcc-mysql</module>
+	 <module>transaction-tcc-test</module>
+	</modules>
+</project>

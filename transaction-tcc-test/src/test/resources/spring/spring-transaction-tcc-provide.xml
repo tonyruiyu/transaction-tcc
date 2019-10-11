@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mybatis="http://mybatis.org/schema/mybatis-spring" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+		http://code.alibabatech.com/schema/dubbo        http://code.alibabatech.com/schema/dubbo/dubbo.xsd"
+       default-lazy-init="false">
+
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+    
+    
+    <bean class="org.tony.transaction.tcc.spring.BeginTransactiongAspect" />
+    <bean class="org.tony.transaction.tcc.spring.AtomTransactionAspect" />
+
+    <bean id="tccTransactionManager" class="org.tony.transaction.tcc.core.TccTransactionManager">
+		<!-- <property name="persistenceManager" ref="defaultPersistenceManager" /> -->                
+		<property name="persistenceManager" ref="persistenceManagerImpl" />
+    </bean>
+
+	<bean id="compositeTransactionRecoveryManager"
+		class="org.tony.transaction.tcc.core.recovery.CompositeTransactionRecoveryManager">
+		<property name="persistenceManager" ref="persistenceManagerImpl" />
+		<property name="codes">
+			<array>
+				<value>b2cstock</value>
+			</array>
+		</property>
+		<property name="timeout" value="600" />
+	</bean>
+    
+    <bean id="persistenceManagerImpl" class="org.tony.transaction.tcc.test.tcc.PersistenceManagerImpl"></bean>
+    
+
+<!-- 
+    <bean id="defaultPersistenceManager" class="org.tony.transaction.tcc.mysql.DefaultPersistenceManager">
+        <property name="atomMapper" ref="atomMapper"></property>
+        <property name="compositeMapper" ref="compositeMapper"></property>
+        <property name="defineMapper" ref="defineMapper"></property>
+    </bean>
+	-->
+	 <!--
+    <bean id="compositeTransactionRecoveryManager" class="org.tony.transaction.tcc.core.recovery.CompositeTransactionRecoveryManager"> 
+        <property name="persistenceManager" ref="defaultPersistenceManager" />
+        <property name="codes">
+            <array>
+                <value>b2cstock</value>
+            </array>
+        </property>
+        <property name="timeout" value="600" />
+    </bean>
+    -->
+    
+  
+    
+   
+
+</beans>

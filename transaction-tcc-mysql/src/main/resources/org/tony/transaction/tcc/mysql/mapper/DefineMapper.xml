@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.tony.transaction.tcc.mysql.mapper.DefineMapper">
+
+    <resultMap id="BaseResultMap" type="org.tony.transaction.tcc.core.Composite">
+        <id column="id" jdbcType="VARCHAR" property="id" />
+        <result column="c_code" jdbcType="VARCHAR" property="code" />
+        <result column="last_status" jdbcType="VARCHAR" property="lastStatus" />
+        <result column="c_current_status" jdbcType="VARCHAR" property="currentStatus" />
+        <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+        <result column="c_current_time" jdbcType="TIMESTAMP" property="currentTime" />
+        <result column="lock_time" jdbcType="TIMESTAMP" property="lockTime" />
+        <result column="lock_status" jdbcType="INTEGER" property="lockStatus" />
+    </resultMap>
+
+    <resultMap id="BaseResultMapAtom" type="org.tony.transaction.tcc.core.Atom">
+        <id column="atom_id" jdbcType="VARCHAR" property="atomId" />
+        <result column="atom_code" jdbcType="VARCHAR" property="code" />
+        <result column="composite_id" jdbcType="VARCHAR" property="compositeId" />
+	  
+        <result column="last_status" jdbcType="VARCHAR" property="lastStatus" />
+        <result column="atom_current_status" jdbcType="VARCHAR" property="currentStatus" />
+        <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+        <result column="atom_current_time" jdbcType="TIMESTAMP" property="currentTime" />
+        <result column="ioc_id" jdbcType="VARCHAR" property="iocId" />
+        <result column="current_retry_cnt" jdbcType="INTEGER" property="currentRetryCnt" />
+        <result column="lock_time" jdbcType="TIMESTAMP" property="lockTime" />
+        <result column="lock_status" jdbcType="INTEGER" property="lockStatus" />
+        <result column="args_content" jdbcType="LONGVARBINARY" property="argsContent" />
+        <result column="atom_sort" jdbcType="INTEGER" property="atomSort" />
+    	  
+    </resultMap>
+
+    <update id="updateAtomStatus" parameterType="map">
+        update atom
+        set
+        last_status = #{lastStatus,jdbcType=VARCHAR},
+        atom_current_status = #{currentStatus,jdbcType=VARCHAR},
+        <if test="currentStatus=='RETRY' || currentStatus=='UNDO'">
+            current_retry_cnt = current_retry_cnt + 1,
+        </if>
+        atom_current_time = now(),
+        lock_time = now()
+        where atom_id = #{atomId,jdbcType=VARCHAR}
+    </update>
+
+
+    <update id="updateCompositeStatus" parameterType="map">
+        update
+        composite
+        set
+        last_status = #{lastStatus,jdbcType=VARCHAR},
+        c_current_status = #{currentStatus,jdbcType=VARCHAR},
+        c_current_time =
+        now(),
+        lock_time = now()
+        where id = #{compositeId,jdbcType=VARCHAR}
+    </update>
+
+    <select id="loadCompositeByStatus" resultMap="BaseResultMap">
+        select 
+        id, c_code, last_status, c_current_status, create_date, 
+        c_current_time, lock_time,lock_status
+        from composite 
+        where
+        c_code=#{code,jdbcType=VARCHAR}
+        and 
+        c_current_status in 
+        <foreach collection="status" item="criterion" separator="," open="(" close=")">
+            #{criterion}
+        </foreach>
+        and (
+        lock_status=0 or 
+        date_add(lock_time,INTERVAL ${timeout} SECOND) &lt; now()
+        )
+        order by lock_time asc
+        limit 10000
+    </select>
+	
+    <select id="loadAtomsByComposite" resultMap="BaseResultMapAtom">
+        select
+        atom_id, atom_code, composite_id, last_status, atom_current_status, create_date, atom_current_time, 
+        ioc_id, current_retry_cnt, lock_time, lock_status,args_content, atom_sort
+        from `atom`
+        where 
+        composite_id=#{cid,jdbcType=VARCHAR}
+        order by
+        atom_sort asc
+    </select>
+	
+	
+    <update id="obtainCompositeLock" parameterType="map">
+        update
+        composite
+        set
+        lock_time = now(),
+        lock_status=1
+        where 
+        id = #{id,jdbcType=VARCHAR}
+        and (
+        lock_status=0
+        or 
+        date_add(lock_time,INTERVAL ${timeout} SECOND) &lt; now()
+        )
+    </update>
+    <update id="releaseCompositeByStatus" parameterType="map">
+        update
+        composite
+        set
+        lock_status=0
+        where 
+        id = #{id,jdbcType=VARCHAR}
+    </update>
+	
+    <delete id="clearCompostie">
+        delete from `composite` where c_current_status='FINISH' and c_code=#{ccode} and date_add(create_date,INTERVAL ${saveDay} DAY) &lt; now() 
+    </delete>
+    <delete id="clearAtom">
+        delete a.* from `atom` a where not EXISTS (select 1 from composite b where b.id=a.composite_id)
+    </delete>
+
+
+</mapper>
