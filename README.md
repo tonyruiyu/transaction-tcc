@@ -3,7 +3,10 @@
 ## 介绍
 transaction-tcc提供了一个基于TCC模型的分布式事务的简单处理工具。
 
-## 使用方式 (try,confirm,cancel须幂等，参数一致。):
+## 使用方式 (try,confirm,cancel须幂等，参数一致。)
+
+### JAVA调用方式
+
 开启一个TCC事务
 ```
 public class BusinessServiceImpl {
@@ -11,10 +14,14 @@ public class BusinessServiceImpl {
 	@Resource ATransactionApi aTransactionApi;
 	@Resource BTransactionApi bTransactionApi;
 
- 	@TccTransaction("yourCompositeCode")
-    public void runBiz() {
-        aTransactionApi.tryMethod(new Object[] {});
-        bTransactionApi.tryMethod(buildArgs());
+	@TccTransaction("yourCompositeCode")
+	public void runBiz(Object... obj) {
+		Object yourParam1 = ...;
+		Object yourParam2 = ...;
+		...
+		
+		aTransactionApi.tryMethod(yourParam1,yourParam2);
+		bTransactionApi.tryMethod(yourParam3,yourParam4);
     }
 }
 ```
@@ -44,17 +51,17 @@ public class ATransactionApi {
 	}
 	
 	@ConfirmMethod
-    public Object confirm(Object yourParam1, Object yourParam2) {
+	public Object confirm(Object yourParam1, Object yourParam2) {
     		//... your biz code 
     		aTransactionPRCApi.confirm(yourParam1,yourParam2);
     		//...
     }
     
 	@CancelMethod
-    public Object cancel(Object... args) {
-    		//... your biz code 
-    		aTransactionPRCApi.cancel(yourParam1,yourParam2);
-    		//...
+	public Object cancel(Object... args) {
+		//... your biz code 
+		aTransactionPRCApi.cancel(yourParam1,yourParam2);
+		//...
     }
     
     @QueryMethod
@@ -102,5 +109,71 @@ public class BTransactionApi {
     }
 }
 ```
+
+
+### Spring配置说明
+如果需要开启注解
+```
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
+	    
+	<bean class="org.tony.transaction.tcc.spring.BeginTransactiongAspect" />
+	<bean class="org.tony.transaction.tcc.spring.AtomTransactionAspect" />
+```
+
+配置TCC事务管理器
+```
+<!-- 事务管理器 -->
+<bean id="tccTransactionManager" class="org.tony.transaction.tcc.core.TccTransactionManager">
+	<property name="persistenceManager" ref="defaultPersistenceManager" />
+</bean>
+
+<!-- 持久化管理器 -->
+<bean id="defaultPersistenceManager" class="org.tony.transaction.tcc.mysql.DefaultPersistenceManager">
+    <property name="atomMapper" ref="atomMapper"></property>
+    <property name="compositeMapper" ref="compositeMapper"></property>
+    <property name="defineMapper" ref="defineMapper"></property>
+</bean>
+
+<!-- 默认mybatis实现相关配置 -->
+<bean id="tccFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	<property name="dataSource" ref="tccDataSource" />
+	<property name="configLocation" value="classpath:mybatis/mybatis-tcc-configuration.xml" />
+	<property name="typeAliasesPackage" value="org.tony.transaction.tcc.mysql.po" />
+</bean>
+
+<bean id="tccMapper" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+	<property name="basePackage" value="org.tony.transaction.tcc.mysql.mapper" />
+	<property name="sqlSessionFactoryBeanName" value="tccFactory" />
+</bean>
+
+
+<!-- mysql数据源配置 -->
+<bean id="tccDataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+	<property name="driverClassName" value="${mysql.tcc.driverClassName}" />
+	<property name="url" value="${mysql.tcc.url}" />
+	<property name="username" value="${mysql.tcc.user}" />
+	<property name="password" value="${mysql.tcc.password}" />
+	<property name="initialSize" value="${mysql.tcc.initialSize}" />
+	<property name="minIdle" value="${mysql.tcc.minIdle}" />
+	<property name="maxIdle" value="${mysql.tcc.maxIdle}" />
+	<property name="maxTotal" value="${mysql.tcc.maxTotal}" />
+	<property name="maxWaitMillis" value="${mysql.tcc.maxWaitMillis}" />
+	<property name="timeBetweenEvictionRunsMillis" value="${mysql.tcc.timeBetweenEvictionRunsMillis}" />
+	<property name="minEvictableIdleTimeMillis" value="${mysql.tcc.minEvictableIdleTimeMillis}" />
+	<property name="testWhileIdle" value="${mysql.tcc.testWhileIdle}" />
+	<property name="testOnBorrow" value="${mysql.tcc.testOnBorrow}" />
+	<property name="testOnReturn" value="${mysql.tcc.testOnReturn}" />
+	<property name="removeAbandonedOnMaintenance" value="${mysql.tcc.removeAbandonedOnMaintenance}" />
+	<property name="removeAbandonedOnBorrow" value="${mysql.tcc.removeAbandonedOnBorrow}" />
+	<property name="removeAbandonedTimeout" value="${mysql.tcc.removeAbandonedTimeout}" />
+	<property name="logAbandoned" value="${mysql.tcc.logAbandoned}" />
+	<property name="validationQuery" value="select 1" />
+</bean>
+```
+
+
+
+
+
 
 
