@@ -558,7 +558,7 @@
         <aspectjweaver_version>1.8.6</aspectjweaver_version>
         <spring.bom.version>4.0.6.RELEASE</spring.bom.version>
         <httpclient_version>4.2.1</httpclient_version>
-        <xstream_version>1.4.1</xstream_version>
+        <xstream_version>1.4.16</xstream_version>
         <fastjson_version>1.1.39</fastjson_version>
         <zookeeper_version>3.4.6</zookeeper_version>
         <netflix_curator_version>1.3.3</netflix_curator_version>
